@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Prediction</title>
+    <style>
+        body {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: url('cal.png');
+            
+            background-size: auto;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: rgba(70, 204, 228, 0.7);
+            /* Adjust the alpha (fourth) value for transparency */
+        }
+
+        .title {
+            text-align: center;
+            margin: 20px 0;
+
+            font-size: 70px;
+            
+        }
+
+        #image-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-gap: 10px;
+            justify-items: center;
+            background-color: rgba(255, 255, 255, 0.605);
+            /* Optional background color for image container */
+            padding: 20px;
+            /* Optional padding for image container */
+        }
+
+        #image-input {
+            margin: 10px 0;
+            /* Add top margin for spacing */
+        }
+
+        #uploaded-image {
+            max-width: 100%;
+            max-height: 50vh;
+            /* Limit the height of the image */
+        }
+
+        #result {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">Calorie Prediction</h1>
+    <div id="image-container">
+        <input type="file" id="image-input" accept="image/*">
+        <div id="uploaded-image-container">
+            <img id="uploadedImage" src="" alt="Uploaded Image" style="max-width: 100%; display: none;">
+        </div>
+        <button id="predictButton" style="display: none;">Predict</button>
+        <div id="resultDiv"></div>
+    </div>
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const imageInput = document.getElementById('image-input');
+            const predictButton = document.getElementById('predictButton');
+            const uploadedImage = document.getElementById('uploadedImage');
+            const resultDiv = document.getElementById('resultDiv');
+
+            imageInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        uploadedImage.src = reader.result;
+                        uploadedImage.style.display = 'block';
+                        predictButton.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            predictButton.addEventListener('click', function () {
+                const file = imageInput.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('/predict', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            resultDiv.innerHTML = 'Result: ' + data.result;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
